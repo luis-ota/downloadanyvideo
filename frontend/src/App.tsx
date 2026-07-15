@@ -42,7 +42,7 @@ export default function App() {
     window.open(url, '_blank', 'noopener')
   }
 
-  const formatDuration = (s: number) => {
+  const fmtDuration = (s: number) => {
     const h = Math.floor(s / 3600)
     const m = Math.floor((s % 3600) / 60)
     const sec = Math.floor(s % 60)
@@ -50,7 +50,7 @@ export default function App() {
     return `${m}:${String(sec).padStart(2, '0')}`
   }
 
-  const formatSize = (b: number | null) => {
+  const fmtSize = (b: number | null) => {
     if (!b) return ''
     const mb = b / (1024 * 1024)
     if (mb >= 1000) return `${(mb / 1024).toFixed(1)} GB`
@@ -66,19 +66,22 @@ export default function App() {
       <main>
         <section className="hero">
           <h1>Baixe vídeos de <span>qualquer lugar</span></h1>
-          <p>Cole o link e veja todas as qualidades disponíveis.</p>
+          <p>Cole o link e veja todas as qualidades disponíveis para download.</p>
 
           <div className="input-area">
+            <span className="prompt">$</span>
             <input
               type="url"
               value={url}
               onChange={e => setUrl(e.target.value)}
-              placeholder="Cole um link de vídeo..."
+              placeholder="cole um link de vídeo..."
               onKeyDown={e => e.key === 'Enter' && handleExtract()}
               className="url-input"
+              spellCheck={false}
+              autoFocus
             />
-            <button onClick={handleExtract} disabled={loading} className="btn primary">
-              {loading ? 'Processando…' : 'Buscar'}
+            <button onClick={handleExtract} disabled={loading} className="btn-search">
+              {loading ? '…' : '→'}
             </button>
           </div>
         </section>
@@ -88,7 +91,7 @@ export default function App() {
         {loading && (
           <div className="loading">
             <div className="spinner" />
-            <p>Extraindo informações…</p>
+            <span>Extraindo informações…</span>
           </div>
         )}
 
@@ -101,27 +104,23 @@ export default function App() {
               <div className="video-meta">
                 <h2 className="video-title">{result.title}</h2>
                 {result.duration && (
-                  <span className="duration">{formatDuration(result.duration)}</span>
+                  <span className="duration">{fmtDuration(result.duration)}</span>
                 )}
               </div>
             </div>
 
             <div className="formats">
               {result.formats.map((fmt, i) => (
-                <div key={`${fmt.id}-${i}`} className="format-card">
+                <div key={`${fmt.id}-${i}`} className="format-row">
                   <div className="format-info">
-                    <span className="quality">{fmt.quality || fmt.ext}</span>
+                    <span className="quality">{fmt.quality}</span>
                     <span className="ext">{fmt.ext}</span>
-                    {fmt.has_audio ? (
-                      <span className="badge badge-audio">áudio</span>
-                    ) : (
-                      <span className="badge badge-video">só video</span>
-                    )}
-                    {fmt.size && <span className="size">{formatSize(fmt.size)}</span>}
+                    {!fmt.has_audio && <span className="audio-note">sem áudio</span>}
+                    {fmt.size != null && <span className="size">{fmtSize(fmt.size)}</span>}
                   </div>
                   <div className="format-actions">
-                    <button className="btn ghost" onClick={() => openUrl(fmt.url)}>▶ Play</button>
-                    <button className="btn ghost" onClick={() => openUrl(fmt.url)}>⬇ Download</button>
+                    <button className="btn-action" onClick={() => openUrl(fmt.url)}>▶ Play</button>
+                    <button className="btn-action" onClick={() => openUrl(fmt.url)}>⬇ Download</button>
                   </div>
                 </div>
               ))}
@@ -131,9 +130,7 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        <span>DownloadAnyVideo</span>
-        <span className="sep">·</span>
-        <span>conteúdo público e licenciado</span>
+        <span>DownloadAnyVideo · conteúdo público e licenciado</span>
       </footer>
     </div>
   )
