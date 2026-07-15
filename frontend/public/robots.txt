@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://downloadanyvideo.wired.rs/sitemap.xml
