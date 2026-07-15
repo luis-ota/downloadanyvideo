@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wired · hub</title>
+  <meta name="description" content="wired.rs — coleção de ferramentas" />
+  <meta name="theme-color" content="#0e0e0e" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; }
+    body {
+      background: #080808;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    ::selection { background: #22d3ee; color: #000; }
+
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 48px 0 8px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+    h1 span { color: #22d3ee; }
+    header p {
+      margin-top: 8px;
+      color: #555;
+      font-size: 13px;
+    }
+
+    .tools {
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .tool {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      border: 1px solid #1a1a1a;
+      border-radius: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .2s, background .2s;
+    }
+    .tool:hover {
+      border-color: #333;
+      background: #0e0e0e;
+    }
+
+    .tool-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .tool-info { min-width: 0; }
+    .tool-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .tool-desc {
+      font-size: 12px;
+      color: #555;
+      margin-top: 2px;
+    }
+    .tool-arrow {
+      margin-left: auto;
+      color: #333;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: color .2s;
+    }
+    .tool:hover .tool-arrow { color: #22d3ee; }
+
+    footer {
+      text-align: center;
+      padding: 48px 0 32px;
+      color: #333;
+      font-size: 11px;
+    }
+
+    @media (max-width: 500px) {
+      header { padding-top: 32px; }
+      h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><span>wired</span> · hub</h1>
+      <p>coleção de ferramentas</p>
+    </header>
+
+    <div class="tools">
+      <a class="tool" href="https://boxdgrid.wired.rs/">
+        <div class="tool-icon" style="background:rgba(0,224,84,.1);color:#00e054;">⊞</div>
+        <div class="tool-info">
+          <div class="tool-name">boxdgrid</div>
+          <div class="tool-desc">colagem de filmes do Letterboxd</div>
+        </div>
+        <span class="tool-arrow">→</span>
+      </a>
+
+      <a class="tool" href="https://songhunter.wired.rs/">
+        <div class="tool-icon" style="background:rgba(251,146,60,.1);color:#fb923c;">♫</div>
+        <div class="tool-info">
+          <div class="tool-name">songhunter</div>
+          <div class="tool-desc">busca e identificação de músicas</div>
+        </div>
+        <span class="tool-arrow">→</span>
+      </a>
+
+      <a class="tool" href="https://downloadanyvideo.wired.rs/">
+        <div class="tool-icon" style="background:rgba(34,211,238,.1);color:#22d3ee;">▶</div>
+        <div class="tool-info">
+          <div class="tool-name">downloadanyvideo</div>
+          <div class="tool-desc">baixe vídeos de qualquer link</div>
+        </div>
+        <span class="tool-arrow">→</span>
+      </a>
+    </div>
+
+    <footer>wired.rs</footer>
+  </div>
+</body>
+</html>

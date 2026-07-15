@@ -109,15 +109,23 @@ async fn extract(
         for fmt in fmts {
             let vcodec = fmt["vcodec"].as_str().unwrap_or("none");
             let acodec = fmt["acodec"].as_str().unwrap_or("none");
+            let url = fmt["url"].as_str().unwrap_or("");
 
-            if vcodec == "none" {
+            if url.is_empty() || (vcodec == "none" && acodec == "none") {
                 continue;
             }
 
             let height = fmt["height"].as_u64().unwrap_or(0);
             let format_note = fmt["format_note"].as_str().unwrap_or("");
 
-            let quality: String = if !format_note.is_empty() && format_note != "Unknown" {
+            let quality: String = if vcodec == "none" {
+                let abitrate = fmt["abr"].as_f64().unwrap_or(0.0) as u64;
+                if abitrate > 0 {
+                    format!("{}k", abitrate)
+                } else {
+                    "áudio".into()
+                }
+            } else if !format_note.is_empty() && format_note != "Unknown" {
                 format_note.to_string()
             } else {
                 match height {
@@ -139,13 +147,25 @@ async fn extract(
                 id: fmt["format_id"].as_str().unwrap_or("").to_string(),
                 quality,
                 ext: fmt["ext"].as_str().unwrap_or("").to_string(),
-                url: fmt["url"].as_str().unwrap_or("").to_string(),
+                url: url.to_string(),
                 size,
                 has_audio: acodec != "none",
-                codec: vcodec.to_string(),
+                codec: if vcodec != "none" {
+                    vcodec.to_string()
+                } else {
+                    format!("aac")
+                },
             });
         }
     }
+
+    formats.sort_by(|a, b| {
+        b.has_audio.cmp(&a.has_audio).then_with(|| {
+            let aq = a.quality.parse::<u64>().unwrap_or(0);
+            let bq = b.quality.parse::<u64>().unwrap_or(0);
+            bq.cmp(&aq)
+        })
+    });
 
     if formats.is_empty() {
         return Err((
