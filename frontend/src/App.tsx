@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef } from 'react'
-import { extractVideo, type VideoResult, type Format } from './api'
+import { useState, useRef } from 'react'
+import { extractVideo, type VideoResult } from './api'
 
 const SMARTLINK = "https://www.effectivecpmnetwork.com/tfm84s4e6a?key=a0917091db28caa0a680bad911c9473b"
 
@@ -8,19 +8,18 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<VideoResult | null>(null)
-  const [playingUrl, setPlayingUrl] = useState<string | null>(null)
   const smartlinkReady = useRef(true)
 
-  const smartlinkClick = useCallback(() => {
+  const smartlinkClick = () => {
     if (smartlinkReady.current) {
       smartlinkReady.current = false
       window.open(SMARTLINK, '_blank')
     }
-  }, [])
+  }
 
-  const resetSmartlink = useCallback(() => {
+  const resetSmartlink = () => {
     smartlinkReady.current = true
-  }, [])
+  }
 
   const handleExtract = async () => {
     if (!url.trim()) return
@@ -38,18 +37,9 @@ export default function App() {
     }
   }
 
-  const handlePlay = (fmt: Format) => {
+  const openUrl = (url: string) => {
     smartlinkClick()
-    setPlayingUrl(fmt.url)
-  }
-
-  const handleDownload = (fmt: Format) => {
-    smartlinkClick()
-    const a = document.createElement('a')
-    a.href = fmt.url
-    a.target = '_blank'
-    a.rel = 'noopener noreferrer'
-    a.click()
+    window.open(url, '_blank', 'noopener')
   }
 
   const formatDuration = (s: number) => {
@@ -130,8 +120,8 @@ export default function App() {
                     {fmt.size && <span className="size">{formatSize(fmt.size)}</span>}
                   </div>
                   <div className="format-actions">
-                    <button className="btn ghost" onClick={() => handlePlay(fmt)}>▶ Play</button>
-                    <button className="btn ghost" onClick={() => handleDownload(fmt)}>⬇ Download</button>
+                    <button className="btn ghost" onClick={() => openUrl(fmt.url)}>▶ Play</button>
+                    <button className="btn ghost" onClick={() => openUrl(fmt.url)}>⬇ Download</button>
                   </div>
                 </div>
               ))}
@@ -145,15 +135,6 @@ export default function App() {
         <span className="sep">·</span>
         <span>conteúdo público e licenciado</span>
       </footer>
-
-      {playingUrl && (
-        <div className="modal-overlay" onClick={() => setPlayingUrl(null)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setPlayingUrl(null)}>✕</button>
-            <video controls autoPlay className="video-player" src={playingUrl} />
-          </div>
-        </div>
-      )}
     </div>
   )
 }

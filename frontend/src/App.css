@@ -287,50 +287,6 @@ body {
   flex-shrink: 0;
 }
 
-/* ── Modal ── */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, .85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  padding: 24px;
-}
-
-.modal {
-  position: relative;
-  width: 100%;
-  max-width: 900px;
-  max-height: 90vh;
-}
-
-.modal-close {
-  position: absolute;
-  top: -32px;
-  right: 0;
-  background: none;
-  border: none;
-  color: var(--text2);
-  font-size: 20px;
-  cursor: pointer;
-  padding: 4px;
-  line-height: 1;
-}
-
-.modal-close:hover {
-  color: var(--text);
-}
-
-.video-player {
-  width: 100%;
-  max-height: 85vh;
-  border-radius: var(--r);
-  background: #000;
-}
-
 /* ── Footer ── */
 
 .footer {
