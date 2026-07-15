@@ -1,9 +1,9 @@
-use axum::{Json, Router, http::StatusCode, routing::post};
+use axum::{Json, Router, http::{StatusCode, HeaderMap}, routing::post};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tokio::process::Command;
 use tokio::time::timeout;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::{CorsLayer, AllowOrigin};
 
 #[derive(Deserialize)]
 struct ExtractRequest {
@@ -34,9 +34,37 @@ struct ErrorResponse {
     error: String,
 }
 
+const ALLOWED_ORIGINS: [&str; 3] = [
+    "https://downloadanyvideo.wired.rs",
+    "http://localhost:3010",
+    "http://localhost:5173",
+];
+
+fn check_origin(headers: &HeaderMap) -> bool {
+    let origin = headers
+        .get("origin")
+        .or_else(|| headers.get("referer"))
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    if origin.is_empty() {
+        return false;
+    }
+    ALLOWED_ORIGINS.iter().any(|o| origin.starts_with(o))
+}
+
 async fn extract(
+    headers: HeaderMap,
     Json(req): Json<ExtractRequest>,
 ) -> Result<Json<ExtractResponse>, (StatusCode, Json<ErrorResponse>)> {
+    if !check_origin(&headers) {
+        return Err((
+            StatusCode::FORBIDDEN,
+            Json(ErrorResponse {
+                error: "Access denied".into(),
+            }),
+        ));
+    }
+
     if req.url.trim().is_empty() {
         return Err((
             StatusCode::BAD_REQUEST,
@@ -186,10 +214,17 @@ async fn extract(
 
 #[tokio::main]
 async fn main() {
+    let origins: Vec<axum::http::HeaderValue> = ALLOWED_ORIGINS
+        .iter()
+        .map(|o| o.parse().unwrap())
+        .collect();
+
     let cors = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_methods(Any)
-        .allow_headers(Any);
+        .allow_origin(AllowOrigin::list(origins))
+        .allow_methods([axum::http::Method::POST])
+        .allow_headers([
+            axum::http::HeaderName::from_static("content-type"),
+        ]);
 
     let app = Router::new()
         .route("/api/extract", post(extract))
