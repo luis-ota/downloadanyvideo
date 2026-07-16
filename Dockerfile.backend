@@ -6,8 +6,11 @@ RUN cargo build --release
 FROM debian:bookworm-slim
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    python3 ca-certificates curl ffmpeg && \
+    python3 ca-certificates curl ffmpeg unzip && \
     rm -rf /var/lib/apt/lists/*
+RUN curl -fsSL https://deno.land/install.sh -o /tmp/deno-install.sh && \
+    DENO_INSTALL=/usr/local sh /tmp/deno-install.sh -y && \
+    rm /tmp/deno-install.sh
 RUN curl -fsSL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
     -o /usr/local/bin/yt-dlp && \
     chmod +x /usr/local/bin/yt-dlp

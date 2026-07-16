@@ -4,7 +4,7 @@
 
 Extrai vídeos de links e exibe todas as qualidades disponíveis para play/download.
 
-**Stack:** Rust (Axum) + React (Vite, TypeScript) + yt-dlp + Docker
+**Stack:** Rust (Axum) + React (Vite, TypeScript) + yt-dlp + deno + Docker
 
 ### Como funciona
 
@@ -48,3 +48,9 @@ ssh servidor "cd ~/downloadanyvideo && git pull && docker compose up --build -d"
 ### SmartLink
 
 O projeto usa SmartLink da Adterra — o primeiro clique em Play/Download após cada extração abre um anúncio em nova aba.
+
+### Notas
+
+- `deno` está instalado no container backend porque o yt-dlp precisa de um runtime JS para resolver o desafio JavaScript do YouTube (EJS).
+- O backend usa ffmpeg para mesclar streams de vídeo/áudio quando necessário.
+- A API é restrita por header `Origin` — apenas o domínio de produção e `localhost` são permitidos.
