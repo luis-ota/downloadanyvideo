@@ -1,19 +1,32 @@
+# syntax=docker/dockerfile:1
+
 FROM rust:1.83-slim-bookworm AS builder
 WORKDIR /app
-COPY backend/ .
+COPY backend/Cargo.toml backend/Cargo.lock ./
+RUN mkdir src && echo "fn main() {}" > src/main.rs \
+    && cargo build --release \
+    && rm -rf src
+COPY backend/src ./src
 RUN cargo build --release
 
 FROM debian:bookworm-slim
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    python3 ca-certificates curl ffmpeg unzip && \
+    python3 python3-venv ca-certificates curl ffmpeg unzip && \
     rm -rf /var/lib/apt/lists/*
+
+# yt-dlp via pip (extractors atualizados + impersonate via curl_cffi)
+RUN python3 -m venv /opt/ytdlp && \
+    /opt/ytdlp/bin/pip install --no-cache-dir -U "yt-dlp[default]" curl_cffi
+
+ENV PATH="/opt/ytdlp/bin:$PATH"
+
+# deno: runtime JS exigido pelo challenge EJS do YouTube
 RUN curl -fsSL https://deno.land/install.sh -o /tmp/deno-install.sh && \
     DENO_INSTALL=/usr/local sh /tmp/deno-install.sh -y && \
     rm /tmp/deno-install.sh
-RUN curl -fsSL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
-    -o /usr/local/bin/yt-dlp && \
-    chmod +x /usr/local/bin/yt-dlp
+
 COPY --from=builder /app/target/release/downloadanyvideo-backend /usr/local/bin/
 EXPOSE 3001
 CMD ["downloadanyvideo-backend"]

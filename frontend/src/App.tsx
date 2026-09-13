@@ -131,6 +131,8 @@ export default function App() {
 
       <footer className="footer">
         <span>DownloadAnyVideo · conteúdo público e licenciado</span>
+        <span aria-hidden="true">·</span>
+        <a href="https://portfolio.wired.rs/" target="_blank" rel="noopener">desenvolvido por Wired Layer Co.</a>
       </footer>
     </div>
   )
