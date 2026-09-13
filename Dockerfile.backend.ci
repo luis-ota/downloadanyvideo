@@ -18,10 +18,8 @@ RUN python3 -m venv /opt/ytdlp \
     && /opt/ytdlp/bin/pip install --no-cache-dir -U "yt-dlp[default]" curl_cffi
 ENV PATH="/opt/ytdlp/bin:$PATH"
 
-# deno: runtime JS para o challenge do YouTube
-RUN curl -fsSL https://deno.land/install.sh -o /tmp/deno-install.sh \
-    && DENO_INSTALL=/usr/local sh /tmp/deno-install.sh -y \
-    && rm /tmp/deno-install.sh
+# bun é o runtime JS usado pelo yt-dlp (challenge do YouTube)
+COPY --from=oven/bun:1 /usr/local/bin/bun /usr/local/bin/bun
 
 COPY backend/downloadanyvideo-backend /usr/local/bin/downloadanyvideo-backend
 RUN chmod +x /usr/local/bin/downloadanyvideo-backend

@@ -178,6 +178,9 @@ async fn extract(
             .arg("-J")
             .arg("--no-warnings")
             .arg("--no-check-certificates")
+            .arg("--no-js-runtimes")
+            .arg("--js-runtimes")
+            .arg("bun")
             .arg(&url)
             .output(),
     )
@@ -232,6 +235,11 @@ async fn extract(
             let url = fmt["url"].as_str().unwrap_or("");
 
             if url.is_empty() || (vcodec == "none" && acodec == "none") {
+                continue;
+            }
+
+            // manifests (HLS/DASH) não são arquivos: o proxy não consegue servir como mídia
+            if url.contains(".m3u8") || url.contains(".mpd") || url.contains("/manifest/") {
                 continue;
             }
 

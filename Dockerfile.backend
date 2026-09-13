@@ -26,10 +26,8 @@ RUN python3 -m venv /opt/ytdlp && \
 
 ENV PATH="/opt/ytdlp/bin:$PATH"
 
-# deno: runtime JS exigido pelo challenge EJS do YouTube
-RUN curl -fsSL https://deno.land/install.sh -o /tmp/deno-install.sh && \
-    DENO_INSTALL=/usr/local sh /tmp/deno-install.sh -y && \
-    rm /tmp/deno-install.sh
+# bun é o runtime JS usado pelo yt-dlp (challenge do YouTube)
+COPY --from=oven/bun:1 /usr/local/bin/bun /usr/local/bin/bun
 
 COPY --from=builder /app/target/release/downloadanyvideo-backend /usr/local/bin/
 EXPOSE 3001
