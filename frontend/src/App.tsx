@@ -57,17 +57,13 @@ export default function App() {
     return `${mb.toFixed(0)} MB`
   }
 
+  const take = result ? String(result.formats.length).padStart(2, '0') : '00'
+
   return (
-    <div className="site">
-      <header className="topo">
+    <div className="sala">
+      <header className="cabeca">
         <a className="marca" href="/">
-          <span className="marca-icone" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="16" rx="2" />
-              <path d="M12 8v6" />
-              <path d="M9.5 11.5 12 14l2.5-2.5" />
-            </svg>
-          </span>
+          <span className="marca-luz" aria-hidden="true" />
           <span className="marca-nome">downloadanyvideo</span>
         </a>
         <a className="marca-por" href="https://wired.rs/" target="_blank" rel="noopener">
@@ -75,92 +71,128 @@ export default function App() {
         </a>
       </header>
 
-      <main className="conteudo">
-        <section className="hero">
-          <p className="kicker" aria-hidden="true">youtube · tiktok · instagram · vimeo · x · soundcloud</p>
-          <h1>
-            baixe vídeos de <em>qualquer link</em>
+      <main className="palco">
+        <section className="abertura">
+          <p className="ficha" aria-hidden="true">
+            youtube · tiktok · instagram · vimeo · x · soundcloud
+          </p>
+          <h1 className="titulo">
+            Cole o link.
+            <br />
+            <em>Leve o vídeo.</em>
           </h1>
-          <p className="sub">
-            Cole o endereço do vídeo e escolha a qualidade. Sem cadastro, sem instalar nada,
-            com as melhores qualidades disponíveis para download.
+          <p className="linha-fina">
+            Extraímos todas as qualidades disponíveis do vídeo: escolha o formato, dê play
+            ou baixe. Sem cadastro, sem instalar nada.
           </p>
 
-          <div className="terminal">
-            <span className="prompt" aria-hidden="true">$</span>
-            <input
-              type="url"
-              value={url}
-              onChange={e => setUrl(e.target.value)}
-              placeholder="cole um link de vídeo..."
-              onKeyDown={e => e.key === 'Enter' && handleExtract()}
-              className="url-input"
-              aria-label="link do vídeo"
-              spellCheck={false}
-              autoFocus
-            />
-            <button onClick={handleExtract} disabled={loading || !url.trim()} className="btn-extrair">
-              {loading ? 'extraindo' : 'extrair'}
-              <span aria-hidden="true">{loading ? '…' : '→'}</span>
-            </button>
+          <div className="bilhete">
+            <label className="bilhete-rotulo" htmlFor="url">
+              link do vídeo
+            </label>
+            <div className="bilhete-linha">
+              <input
+                id="url"
+                type="url"
+                value={url}
+                onChange={e => setUrl(e.target.value)}
+                placeholder="https://..."
+                onKeyDown={e => e.key === 'Enter' && handleExtract()}
+                className="bilhete-campo"
+                spellCheck={false}
+                autoFocus
+              />
+              <button onClick={handleExtract} disabled={loading || !url.trim()} className="btn-extrair">
+                {loading ? 'revelando' : 'extrair'}
+                <span aria-hidden="true">{loading ? '…' : '→'}</span>
+              </button>
+            </div>
           </div>
 
           {error && (
-            <p className="erro" role="alert">
-              <span className="erro-sinal" aria-hidden="true">!</span> {error}
+            <p className="falha" role="alert">
+              <span className="falha-marca" aria-hidden="true">TAKE FALHOU</span>
+              {error}
             </p>
           )}
         </section>
 
+        <div className="pelicula" aria-hidden="true">
+          <div className="tira">
+            <span>download any video</span><i>◆</i>
+            <span>youtube</span><i>◆</i>
+            <span>tiktok</span><i>◆</i>
+            <span>instagram</span><i>◆</i>
+            <span>vimeo</span><i>◆</i>
+            <span>x</span><i>◆</i>
+            <span>soundcloud</span><i>◆</i>
+            <span>download any video</span><i>◆</i>
+            <span>youtube</span><i>◆</i>
+            <span>tiktok</span><i>◆</i>
+            <span>instagram</span><i>◆</i>
+            <span>vimeo</span><i>◆</i>
+            <span>x</span><i>◆</i>
+            <span>soundcloud</span><i>◆</i>
+          </div>
+        </div>
+
         {loading && (
-          <section className="status" aria-live="polite">
-            <span className="spinner" aria-hidden="true" />
-            <span>consultando o extrator, aguarde alguns segundos…</span>
+          <section className="revelando" aria-live="polite">
+            <span className="rec" aria-hidden="true" />
+            <span>revelando os formatos, aguarde alguns segundos…</span>
           </section>
         )}
 
         {result && (
-          <section className="resultado" aria-live="polite">
-            <header className="video">
-              {result.thumbnail && (
-                <img src={result.thumbnail} alt="" className="thumbnail" loading="lazy" />
-              )}
-              <div className="video-meta">
-                <h2 className="video-titulo">{result.title}</h2>
-                <p className="video-info">
+          <section className="contacto" aria-live="polite">
+            <article className="quadro">
+              <div className="quadro-cena">
+                {result.thumbnail ? (
+                  <img src={result.thumbnail} alt="" className="quadro-imagem" loading="lazy" />
+                ) : (
+                  <span className="quadro-vazio" aria-hidden="true">sem quadro</span>
+                )}
+                <span className="quadro-take">TAKE {take}</span>
+              </div>
+              <div className="quadro-texto">
+                <h2 className="quadro-titulo">{result.title}</h2>
+                <p className="quadro-meta">
                   {result.duration ? `duração ${fmtDuration(result.duration)} · ` : ''}
-                  {result.formats.length} formato{result.formats.length === 1 ? '' : 's'} disponíve{result.formats.length === 1 ? 'l' : 'is'}
+                  {result.formats.length} formato{result.formats.length === 1 ? '' : 's'}
                 </p>
               </div>
-            </header>
+            </article>
+
+            <p className="secao-rotulo">formatos disponíveis</p>
 
             <ul className="formatos">
               {result.formats.map((fmt, i) => (
                 <li key={`${fmt.id}-${i}`} className="formato">
-                  <div className="formato-info">
-                    <span className="qualidade">{fmt.quality}</span>
-                    <span className="tag">{fmt.ext}</span>
-                    {fmt.has_audio ? (
-                      <span className="tag tag-ok">áudio</span>
-                    ) : (
-                      <span className="tag tag-mudo">sem áudio</span>
-                    )}
-                    {fmt.size != null && <span className="tamanho">{fmtSize(fmt.size)}</span>}
-                  </div>
-                  <div className="formato-acoes">
+                  <span className="formato-numero" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="formato-qualidade">{fmt.quality}</span>
+                  <span className="formato-fichas">
+                    <span className="ficha-tag">{fmt.ext}</span>
+                    <span className={fmt.has_audio ? 'ficha-tag ficha-ok' : 'ficha-tag ficha-muda'}>
+                      {fmt.has_audio ? 'áudio' : 'sem áudio'}
+                    </span>
+                    {fmt.size != null && <span className="ficha-tamanho">{fmtSize(fmt.size)}</span>}
+                  </span>
+                  <span className="formato-acoes">
                     <button className="btn-acao" onClick={() => openUrl(fmt.url)}>
                       play <span aria-hidden="true">▶</span>
                     </button>
-                    <button className="btn-acao btn-acao-primario" onClick={() => openUrl(fmt.url)}>
+                    <button className="btn-acao btn-acao-cheio" onClick={() => openUrl(fmt.url)}>
                       baixar <span aria-hidden="true">↓</span>
                     </button>
-                  </div>
+                  </span>
                 </li>
               ))}
             </ul>
 
             <p className="aviso">
-              o play e o download abrem o arquivo em uma nova aba. conteúdo público e licenciado,
+              play e download abrem o arquivo em uma nova aba. conteúdo público e licenciado:
               respeite os direitos dos criadores.
             </p>
           </section>
@@ -168,11 +200,13 @@ export default function App() {
       </main>
 
       <footer className="rodape">
-        <span>downloadanyvideo · wired layer co.</span>
-        <span aria-hidden="true">·</span>
+        <span className="rodape-marca">downloadanyvideo</span>
+        <span className="rodape-sep" aria-hidden="true">·</span>
         <a href="https://portfolio.wired.rs/" target="_blank" rel="noopener">portfólio</a>
-        <span aria-hidden="true">·</span>
+        <span className="rodape-sep" aria-hidden="true">·</span>
         <a href="https://github.com/luis-ota/downloadanyvideo" target="_blank" rel="noopener">github</a>
+        <span className="rodape-sep" aria-hidden="true">·</span>
+        <span>conteúdo público e licenciado</span>
       </footer>
     </div>
   )
