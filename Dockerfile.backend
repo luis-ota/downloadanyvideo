@@ -7,7 +7,8 @@ RUN mkdir src && echo "fn main() {}" > src/main.rs \
     && cargo build --release \
     && rm -rf src
 COPY backend/src ./src
-RUN cargo build --release
+# touch garante mtime novo: sem isso o cargo pode considerar o binario dummy como atual
+RUN find src -type f -exec touch {} + && cargo build --release
 
 FROM debian:bookworm-slim
 
