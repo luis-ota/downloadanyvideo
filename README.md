@@ -48,10 +48,10 @@ chave do Actions tem **forced command**: só consegue rodar esse script, que faz
 
 | Secret | Valor |
 |---|---|
-| `DEPLOY_HOST` | `164.152.61.189` |
+| `DEPLOY_HOST` | `<DEPLOY_HOST>` |
 | `DEPLOY_USER` | `ubuntu` |
 | `DEPLOY_SSH_KEY` | chave privada ed25519 com forced command na VPS |
-| `DEPLOY_KNOWN_HOSTS` | saída de `ssh-keyscan -H 164.152.61.189` |
+| `DEPLOY_KNOWN_HOSTS` | saída de `ssh-keyscan -H <DEPLOY_HOST>` |
 
 ### SmartLink
 
