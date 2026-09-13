@@ -7,7 +7,7 @@ on:
       - "**/*.md"
   workflow_dispatch:
   schedule:
-    # Rebuild semanal na VPS: atualiza imagens base e o yt-dlp
+    # Rebuild semanal para manter o yt-dlp atualizado
     - cron: "0 4 * * 1"
 
 permissions:
@@ -17,8 +17,46 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+env:
+  BINARIO: downloadanyvideo-backend
+  RELEASE_TAG: latest-build
+
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Cache cargo
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            backend/target
+          key: ${{ runner.os }}-cargo-dav-${{ hashFiles('backend/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-dav-
+
+      - name: Build release binary
+        run: |
+          cargo build --release --locked --manifest-path backend/Cargo.toml
+          cp "backend/target/release/${BINARIO}" "backend/${BINARIO}"
+
+      - name: Publish binary as release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" \
+              --title "latest build" --notes "binario do backend publicado pelo CI"
+          gh release upload "$RELEASE_TAG" "backend/${BINARIO}" -R "$GITHUB_REPOSITORY" --clobber
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -35,7 +73,7 @@ jobs:
           chmod 644 ~/.ssh/known_hosts
 
       # A chave tem forced command no servidor (/usr/local/bin/deploy-downloadanyvideo):
-      # a VPS faz git pull do repo público, builda as imagens e sobe o compose.
+      # a VPS baixa o binario do release, builda a imagem de runtime e sobe o compose.
       - name: Deploy via forced command
         env:
           HOST: ${{ secrets.DEPLOY_HOST }}

@@ -1,0 +1,30 @@
+# syntax=docker/dockerfile:1
+
+# Runtime para CI: o binário Rust chega compilado do runner (ver
+# .github/workflows/deploy.yml) e é publicado como asset de release.
+# Ubuntu 24.04 casa com a glibc do runner; yt-dlp via pip mantém os extractors frescos.
+FROM ubuntu:24.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    ffmpeg \
+    unzip \
+    python3 \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python3 -m venv /opt/ytdlp \
+    && /opt/ytdlp/bin/pip install --no-cache-dir -U "yt-dlp[default]" curl_cffi
+ENV PATH="/opt/ytdlp/bin:$PATH"
+
+# deno: runtime JS para o challenge do YouTube
+RUN curl -fsSL https://deno.land/install.sh -o /tmp/deno-install.sh \
+    && DENO_INSTALL=/usr/local sh /tmp/deno-install.sh -y \
+    && rm /tmp/deno-install.sh
+
+COPY backend/downloadanyvideo-backend /usr/local/bin/downloadanyvideo-backend
+RUN chmod +x /usr/local/bin/downloadanyvideo-backend
+
+EXPOSE 3001
+CMD ["downloadanyvideo-backend"]
