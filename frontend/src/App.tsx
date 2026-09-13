@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useRef, useState } from 'react'
 import { extractVideo, type VideoResult } from './api'
 
 const SMARTLINK = "https://www.effectivecpmnetwork.com/tfm84s4e6a?key=a0917091db28caa0a680bad911c9473b"
@@ -22,7 +22,7 @@ export default function App() {
   }
 
   const handleExtract = async () => {
-    if (!url.trim()) return
+    if (!url.trim() || loading) return
     setLoading(true)
     setError('')
     setResult(null)
@@ -37,9 +37,9 @@ export default function App() {
     }
   }
 
-  const openUrl = (url: string) => {
+  const openUrl = (link: string) => {
     smartlinkClick()
-    window.open(url, '_blank', 'noopener')
+    window.open(link, '_blank', 'noopener')
   }
 
   const fmtDuration = (s: number) => {
@@ -58,18 +58,36 @@ export default function App() {
   }
 
   return (
-    <div className="container">
-      <header className="header">
-        <span className="brand">DownloadAnyVideo</span>
+    <div className="site">
+      <header className="topo">
+        <a className="marca" href="/">
+          <span className="marca-icone" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <path d="M12 8v6" />
+              <path d="M9.5 11.5 12 14l2.5-2.5" />
+            </svg>
+          </span>
+          <span className="marca-nome">downloadanyvideo</span>
+        </a>
+        <a className="marca-por" href="https://wired.rs/" target="_blank" rel="noopener">
+          wired layer co. <span aria-hidden="true">↗</span>
+        </a>
       </header>
 
-      <main>
+      <main className="conteudo">
         <section className="hero">
-          <h1>Baixe vídeos de <span>qualquer lugar</span></h1>
-          <p>Cole o link e veja todas as qualidades disponíveis para download.</p>
+          <p className="kicker" aria-hidden="true">youtube · tiktok · instagram · vimeo · x · soundcloud</p>
+          <h1>
+            baixe vídeos de <em>qualquer link</em>
+          </h1>
+          <p className="sub">
+            Cole o endereço do vídeo e escolha a qualidade. Sem cadastro, sem instalar nada,
+            com as melhores qualidades disponíveis para download.
+          </p>
 
-          <div className="input-area">
-            <span className="prompt">$</span>
+          <div className="terminal">
+            <span className="prompt" aria-hidden="true">$</span>
             <input
               type="url"
               value={url}
@@ -77,62 +95,84 @@ export default function App() {
               placeholder="cole um link de vídeo..."
               onKeyDown={e => e.key === 'Enter' && handleExtract()}
               className="url-input"
+              aria-label="link do vídeo"
               spellCheck={false}
               autoFocus
             />
-            <button onClick={handleExtract} disabled={loading} className="btn-search">
-              {loading ? '…' : '→'}
+            <button onClick={handleExtract} disabled={loading || !url.trim()} className="btn-extrair">
+              {loading ? 'extraindo' : 'extrair'}
+              <span aria-hidden="true">{loading ? '…' : '→'}</span>
             </button>
           </div>
+
+          {error && (
+            <p className="erro" role="alert">
+              <span className="erro-sinal" aria-hidden="true">!</span> {error}
+            </p>
+          )}
         </section>
 
-        {error && <div className="error">{error}</div>}
-
         {loading && (
-          <div className="loading">
-            <div className="spinner" />
-            <span>Extraindo informações…</span>
-          </div>
+          <section className="status" aria-live="polite">
+            <span className="spinner" aria-hidden="true" />
+            <span>consultando o extrator, aguarde alguns segundos…</span>
+          </section>
         )}
 
         {result && (
-          <section className="result">
-            <div className="video-header">
+          <section className="resultado" aria-live="polite">
+            <header className="video">
               {result.thumbnail && (
-                <img src={result.thumbnail} alt="" className="thumbnail" />
+                <img src={result.thumbnail} alt="" className="thumbnail" loading="lazy" />
               )}
               <div className="video-meta">
-                <h2 className="video-title">{result.title}</h2>
-                {result.duration && (
-                  <span className="duration">{fmtDuration(result.duration)}</span>
-                )}
+                <h2 className="video-titulo">{result.title}</h2>
+                <p className="video-info">
+                  {result.duration ? `duração ${fmtDuration(result.duration)} · ` : ''}
+                  {result.formats.length} formato{result.formats.length === 1 ? '' : 's'} disponíve{result.formats.length === 1 ? 'l' : 'is'}
+                </p>
               </div>
-            </div>
+            </header>
 
-            <div className="formats">
+            <ul className="formatos">
               {result.formats.map((fmt, i) => (
-                <div key={`${fmt.id}-${i}`} className="format-row">
-                  <div className="format-info">
-                    <span className="quality">{fmt.quality}</span>
-                    <span className="ext">{fmt.ext}</span>
-                    {!fmt.has_audio && <span className="audio-note">sem áudio</span>}
-                    {fmt.size != null && <span className="size">{fmtSize(fmt.size)}</span>}
+                <li key={`${fmt.id}-${i}`} className="formato">
+                  <div className="formato-info">
+                    <span className="qualidade">{fmt.quality}</span>
+                    <span className="tag">{fmt.ext}</span>
+                    {fmt.has_audio ? (
+                      <span className="tag tag-ok">áudio</span>
+                    ) : (
+                      <span className="tag tag-mudo">sem áudio</span>
+                    )}
+                    {fmt.size != null && <span className="tamanho">{fmtSize(fmt.size)}</span>}
                   </div>
-                  <div className="format-actions">
-                    <button className="btn-action" onClick={() => openUrl(fmt.url)}>▶ Play</button>
-                    <button className="btn-action" onClick={() => openUrl(fmt.url)}>⬇ Download</button>
+                  <div className="formato-acoes">
+                    <button className="btn-acao" onClick={() => openUrl(fmt.url)}>
+                      play <span aria-hidden="true">▶</span>
+                    </button>
+                    <button className="btn-acao btn-acao-primario" onClick={() => openUrl(fmt.url)}>
+                      baixar <span aria-hidden="true">↓</span>
+                    </button>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
+
+            <p className="aviso">
+              o play e o download abrem o arquivo em uma nova aba. conteúdo público e licenciado,
+              respeite os direitos dos criadores.
+            </p>
           </section>
         )}
       </main>
 
-      <footer className="footer">
-        <span>DownloadAnyVideo · conteúdo público e licenciado</span>
+      <footer className="rodape">
+        <span>downloadanyvideo · wired layer co.</span>
         <span aria-hidden="true">·</span>
-        <a href="https://portfolio.wired.rs/" target="_blank" rel="noopener">desenvolvido por Wired Layer Co.</a>
+        <a href="https://portfolio.wired.rs/" target="_blank" rel="noopener">portfólio</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/luis-ota/downloadanyvideo" target="_blank" rel="noopener">github</a>
       </footer>
     </div>
   )
