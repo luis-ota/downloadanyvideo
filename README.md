@@ -38,12 +38,20 @@ bun run dev
 docker compose up --build -d
 ```
 
-### Deploy
+### Deploy (CI/CD)
 
-```bash
-git push
-ssh servidor "cd ~/downloadanyvideo && git pull && docker compose up --build -d"
-```
+Cada push na `master` dispara `.github/workflows/deploy.yml`, que entra por SSH na
+VPS (`tools-vps`) e executa o script `/usr/local/bin/deploy-downloadanyvideo`. A
+chave do Actions tem **forced command**: só consegue rodar esse script, que faz
+`git fetch` + `git reset --hard origin/master`, `docker compose build --pull` e
+`docker compose up -d` — o build acontece na própria VPS, sem registry de imagens.
+
+| Secret | Valor |
+|---|---|
+| `DEPLOY_HOST` | `164.152.61.189` |
+| `DEPLOY_USER` | `ubuntu` |
+| `DEPLOY_SSH_KEY` | chave privada ed25519 com forced command na VPS |
+| `DEPLOY_KNOWN_HOSTS` | saída de `ssh-keyscan -H 164.152.61.189` |
 
 ### SmartLink
 
